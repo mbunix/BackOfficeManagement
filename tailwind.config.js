@@ -1,14 +1,9 @@
-// tailwind.config.js
+import withMT from '@material-tailwind/react/utils/withMT'
 
-import path from 'path'; // Import path module
-
-export default {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-  ],
+export default withMT({
+  content: ['./pages/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
-}
+  plugins: []
+})

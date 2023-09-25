@@ -6,7 +6,7 @@ import {
   USER_SIGNUP_SUCCESS,
   USER_SIGNUP_FAIL,
   USER_LOGOUT
-} from '../../constants/userconstants.js'
+} from '../../helpers/constants/userconstants.js'
 
 export const userSignUpReducer = (state = {}, actions) => {
   switch (actions.type) {

@@ -6,9 +6,9 @@ import {
   USER_SIGNUP_REQUEST,
   USER_SIGNUP_SUCCESS,
   USER_SIGNUP_FAIL
-} from '../../constants/userconstants.js'
+} from '../../helpers/constants/userconstants.js'
 
-import api from '../../utils/api.js'
+import api from '../../services/api.js'
 
 export const login = (email, password) => async dispatch => {
   try {
