@@ -1,7 +1,7 @@
 import getConfig from 'next/config'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { db } from 'helpers/api'
+import { db } from '../../helpers/api/db.js'
 
 const { serverRuntimeConfig } = getConfig()
 const User = db.User

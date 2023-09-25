@@ -8,7 +8,7 @@ import {
   USER_SIGNUP_FAIL
 } from '../../helpers/constants/userconstants.js'
 
-import api from '../../services/api.js'
+import api from '../../services/index.js'
 
 export const login = (email, password) => async dispatch => {
   try {
