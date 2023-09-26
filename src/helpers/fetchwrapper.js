@@ -1,7 +1,5 @@
 import getConfig from 'next/config';
-
-import { userService } from 'services';
-
+import { userService } from '@/services';
 const { publicRuntimeConfig } = getConfig();
 
 export const fetchWrapper = {

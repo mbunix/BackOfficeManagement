@@ -1,5 +1,4 @@
 'use client'
-import { Link } from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -17,8 +16,7 @@ import {
 
 // Initialize the yup validation schema
 const schema = yup.object({
-  FirstName: yup.string().required('First Name is required'),
-  LastName: yup.string().required('Last Name is required'),
+  UserName: yup.string().required('Username is required'),
   Email: yup.string().email().required('Email is required'),
   Password: yup
     .string()
@@ -27,17 +25,13 @@ const schema = yup.object({
       'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character'
     )
     .required(),
-  confirmPassword: yup
+  ConfirmPassword: yup
     .string()
-    .oneOf([yup.ref('Password'), null], 'Passwords must match')
-    .required('Confirm Password is required'),
-  PhoneNumber: yup.string().required('Phone Number is required'),
-  Address: yup.string().required('Address is required'),
-  Gender: yup.string().required('Enter your gender'),
-  Profession: yup.string().required('Profession is required')
+    .oneOf(['', yup.ref('Password')], 'Passwords must match') // Updated validation
+    .required('Confirm Password is required')
 })
 
-const Register = () => {
+const Register = ({ location, history }) => {
   const router = useRouter()
   const {
     register,
@@ -49,28 +43,21 @@ const Register = () => {
 
   const useSignup = useSelector(state => state.userSignUp)
   const { userInfo, loading, error } = useSignup
-
-  const [state, setState] = useState({
-    FirstName: '',
-    LastName: '',
-    Email: '',
-    Password: '',
-    ConfirmPassword: '',
-    PhoneNumber: '',
-    Address: '',
-    Gender: '',
-    Profession: '',
-    message: ''
-  })
-
   const [passwordStrength, setPasswordStrength] = useState({
     length: false,
     letter: false,
     number: false
   })
 
-  const dispatch = useDispatch()
+  const [state, setState] = useState({
+    UserName: '',
+    Email: '',
+    Password: '',
+    ConfirmPassword: '', // Added ConfirmPassword to state
+    message: ''
+  })
 
+  const dispatch = useDispatch()
   const handlePasswordChange = e => {
     const password = e.target.value
     setPasswordStrength({
@@ -79,72 +66,113 @@ const Register = () => {
       number: /\d/.test(password)
     })
   }
-
-  const submitHandler = data => {
-    // Use "data" from the form for submission
+  const redirect = location?.search ? location.search.split('=')[1] : '/login'
+  const submitHandler = e => {
+    e.preventDefault()
     if (
       !passwordStrength.length ||
       !passwordStrength.letter ||
       !passwordStrength.number
     ) {
-      setState({ ...state, message: 'Password is too weak' })
+      setMessage('Password is too weak')
     } else {
-      if (!data.Email) {
-        setState({ ...state, message: 'Email is required' })
-      } else {
-        // Dispatch the signup action with form data
-        dispatch(SignUp(data.FirstName, data.Password, data.Email))
-        console.log(data.FirstName, data.Password, data.Email)
-        // Reset the form
-        setState({ ...state, message: '' })
+      if (!email) {
+        setMessage('Email is required')
       }
+      dispatch(SignUp(UserName, Password, Email))
+      reset()
     }
-    // router.push('/dashboard') // Navigate using router.push
+    navigate('/homepage')
+    useEffect(() => {
+      if (userInfo) {
+        history.push(redirect)
+      }
+    }, [history, userInfo, redirect])
   }
-
   return (
-    <Card color='transparent' shadow={false}>
-      <Typography variant='h4' color='blue-gray'>
-        Sign Up
-      </Typography>
-      <Typography color='gray' className='mt-1 font-normal'>
-        Enter your details to register.
-      </Typography>
-      <form className='mt-8 mb-2 w-80 max-w-screen-lg sm:w-96' onSubmit = { submitHandler }>
-        <div className='mb-4 flex flex-col gap-6'>
-          <Input size='lg' label='Frst Name' />
-          <Input size='lg' label='Email' />
-          <Input type='password' size='lg' label='Password' />
-        </div>
-        <Checkbox
-          label={
-            <Typography
-              variant='small'
-              color='gray'
-              className='flex items-center font-normal'
-            >
-              I agree the
-              <a
-                href='#'
-                className='font-medium transition-colors hover:text-gray-900'
-              >
-                &nbsp;Terms and Conditions
-              </a>
-            </Typography>
-          }
-          containerProps={{ className: '-ml-2.5' }}
-        />
-        <Button className='mt-6' fullWidth>
-          Register
-        </Button>
-        <Typography color='gray' className='mt-4 text-center font-normal'>
-          Already have an account?{' '}
-          <a href='#' className='font-medium text-gray-900'>
-            Sign In
-          </a>
+    <div className='flex flex-col items-center justify-center h-screen'>
+      <Card color='transparent' shadow={false} className='w-80 max-w-screen-md'>
+        <img src='/logo.png' className='mx-auto mt-10 w-20' alt='logo-image' />
+
+        <Typography variant='h4' color='blue-gray' className='text-center mt-6'>
+          Sign Up
         </Typography>
-      </form>
-    </Card>
+        <Typography color='gray' className='text-center mt-2 font-normal'>
+          Enter your details to register.
+        </Typography>
+        <form className='mt-6 w-full' onSubmit={handleSubmit(submitHandler)}>
+          <div className='mb-10 space-y-6'>
+            <Input
+              size='lg'
+              label='UserName'
+              type='text'
+              placeholder='UserName'
+              {...register('UserName', { required: 'Username is required' })}
+              onChange={e => setState({ ...state, UserName: e.target.value })}
+              {...errors.UserName}
+              value={state.UserName}
+            />
+            <Input
+              size='lg'
+              label='Email'
+              placeholder='Email'
+              {...register('Email')}
+              onChange={e => setState({ ...state, Email: e.target.value })}
+              {...errors.Email}
+              value={state.Email}
+            />
+            <Input
+              type='password'
+              size='lg'
+              label='Password'
+              placeholder='Password'
+              {...register('Password')}
+              onChange={e => setState({ ...state, Password: e.target.value })}
+              value={state.Password}
+              {...errors.Password}
+            />
+            <Input
+              type='password'
+              size='lg'
+              label='Confirm Password'
+              placeholder='Confirm  Password'
+              {...register('ConfirmPassword')}
+              onChange={e =>
+                setState({ ...state, ConfirmPassword: e.target.value })
+              }
+              value={state.ConfirmPassword}
+            />
+          </div>
+          <Checkbox
+            label={
+              <Typography
+                variant='small'
+                color='gray'
+                className='flex items-center font-normal'
+              >
+                I agree to the
+                <a
+                  href='#'
+                  className='font-medium transition-colors hover:text-gray-900'
+                >
+                  &nbsp;Terms and Conditions
+                </a>
+              </Typography>
+            }
+            containerProps={{ className: '-ml-2.5' }}
+          />
+          <Button className='mt-6' fullWidth type='submit'>
+            Register
+          </Button>
+          <Typography color='gray' className='mt-4 text-center font-normal'>
+            Already have an account?{' '}
+            <a href='#' className='font-medium text-gray-900'>
+              Sign In
+            </a>
+          </Typography>
+        </form>
+      </Card>
+    </div>
   )
 }
 
