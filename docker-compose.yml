@@ -1,0 +1,70 @@
+version: "4.20.0"
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=mbunix12
+    volumes:
+      - ${PWD}/mongodb-data:/data/db
+    networks:
+      - mongodb_network
+    ports:
+      - "27017:27017"
+    # healthcheck:
+    #   test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+    #   interval: 40s
+    #   timeout: 10s
+    #   retries: 5
+    # restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express2
+    ports:
+      - "8082:8082"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=mbunix12
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=mbunix12
+    volumes:
+      - ${PWD}/mongodb-data:/data/db/express
+    depends_on:
+      - mongodb
+    networks:
+      - mongodb_network
+    healthcheck:
+      test: wget --quiet --tries=3 --spider http://admin:mbunix12@10.10.10.60:8082 || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # New MongoDB Community Server configuration
+  mongodb-community:
+    image: mongo:7.0
+    container_name: mongodb-community
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=mbunix12
+    volumes:
+      - ${PWD}/mongodb-community-data:/data/db
+    networks:
+      - mongodb_network
+    ports:
+      - "27018:27017" # Mapping to a different host port for differentiation
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 40s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mongodb-data:
+  mongodb-community-data: # Volume for MongoDB Community Server data
+
+networks:
+  mongodb_network:

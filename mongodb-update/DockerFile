@@ -1,0 +1,12 @@
+
+# Use an official Node.js runtime as a parent image
+FROM node:18.17.1
+
+# Install MongoDB Shell (mongosh)
+RUN npm install -g mongodb
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Start mongosh when the container runs
+CMD ["mongosh"]
