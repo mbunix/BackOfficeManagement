@@ -24,9 +24,39 @@ namespace Onboarding
             //next folders will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "backofficemanager/build";
+                configuration.RootPath = @"backofficemanager\out";
             });
 
         }
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+
+            }
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseSpaStaticFiles();
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = @"backofficemanager\out";
+                if (env.IsDevelopment())
+                {
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                }
+            });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "api/{controller}/{action=Index}/{id}");
+            });
+        }
+        }
     }
-}
